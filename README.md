@@ -36,4 +36,13 @@ Assigned IPs:
 The app wrapped in the container is listening in port 80
 
 
+## Lunch user interface
+
+Lunch one or more web clients by typing the following command line (Port Example: 8000, 8001, 8002). Please make sure you are in the "frontEnd" directory.
+
+``python -m SimpleHTTPServer [port]``
+
+At this point a web client to interact with the banck application can be foun at http://localhost:8000/
+
+
 
