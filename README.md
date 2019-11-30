@@ -42,7 +42,7 @@ Lunch one or more web clients by typing the following command line (Port Example
 
 ``python -m SimpleHTTPServer [port]``
 
-At this point a web client to interact with the banck application can be foun at http://localhost:8000/
+At this point a web client to interact with the bank application can be foun at http://localhost:8000/
 
 
 
