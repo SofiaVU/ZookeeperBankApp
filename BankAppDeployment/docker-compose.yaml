@@ -1,0 +1,132 @@
+version: "3"
+services:
+    zoo1:
+        build: .
+        restart: always
+        tty: true
+        hostname: zoo1
+        container_name: zoo1
+        ports:
+            - 2181:2181
+        networks:
+            LANDocker:
+                ipv4_address: 10.0.0.2
+        entrypoint: /docker-entrypoint.sh
+        environment:
+            ZOO_MY_ID: 1
+            ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+
+    zoo2:
+        build: .
+        restart: always
+        hostname: zoo2
+        container_name: zoo2
+        tty: true
+        ports:
+            - 2182:2181
+
+        entrypoint: /docker-entrypoint.sh
+        networks:
+            LANDocker:
+                ipv4_address: 10.0.0.3
+        environment:
+            ZOO_MY_ID: 2
+            ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+
+    zoo3:
+        build: .
+        restart: always
+        hostname: zoo3
+        container_name: zoo3
+        tty: true
+        ports:
+            - 2183:2181
+        networks:
+            LANDocker:
+                ipv4_address: 10.0.0.4
+        entrypoint: /docker-entrypoint.sh
+
+        environment:
+            ZOO_MY_ID: 3
+            ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+
+    bank1:
+        image: openjdk:11
+        restart: always
+        hostname: bank1
+        container_name: bank1
+        tty: true
+        ports:
+            - 80:80
+        links:
+          - bank3
+          - bank2
+          - zoo1
+          - zoo2
+          - zoo3
+        networks:
+            LANDocker:
+                ipv4_address: 10.0.0.5
+        volumes:
+            - ./BankApp.jar:/zoo/BankApp.jar
+        command: bash -c "java -jar /zoo/BankApp.jar 80 h1"
+        depends_on:
+            - zoo1
+            - zoo2
+            - zoo3
+
+    bank2:
+        image: openjdk:11
+        restart: always
+        hostname: bank2
+        container_name: bank2
+        tty: true
+        ports:
+            - 80:80
+        links:
+          - bank3
+          - zoo1
+          - zoo2
+          - zoo3
+        networks:
+            LANDocker:
+                ipv4_address: 10.0.0.6
+        volumes:
+            - ./BankApp.jar:/zoo/BankApp.jar
+        command: bash -c "java -jar /zoo/BankApp.jar 80 h2"
+        depends_on:
+            - zoo1
+            - zoo2
+            - zoo3
+
+    bank3:
+        image: openjdk:11
+        restart: always
+        hostname: bank3
+        container_name: bank3
+        tty: true
+        ports:
+            - 80:80
+        links:
+          - zoo1
+          - zoo2
+          - zoo3
+        networks:
+            LANDocker:
+                ipv4_address: 10.0.0.7
+        volumes:
+            - ./BankApp.jar:/zoo/BankApp.jar
+        command: bash -c "java -jar /zoo/BankApp.jar 80 h3"
+        depends_on:
+            - zoo1
+            - zoo2
+            - zoo3
+
+networks:
+    LANDocker:
+        driver: bridge
+        internal: true
+        ipam:
+            driver: default
+            config:
+                - subnet: 10.0.0.0/24
